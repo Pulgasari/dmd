@@ -1,5 +1,8 @@
 {
   "name": "@dmd/core",
   "version": "0.1.0",
-  "exports": "./mod.ts"
+  "exports": "./mod.ts",
+  "imports": {
+    "marked": "npm:marked@^12.0.0"
+  }
 }
