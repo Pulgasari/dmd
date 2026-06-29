@@ -1,0 +1,22 @@
+:::dmd
+$projektName = 'SuperDMD'
+$wohnort = 'Karl-Marx-Stadt'
+$nachname = 'Müller'
+
+$tableContent = [
+  { plugin: 'hotkeys', android: 'ja', mac: 'nein', windows: 'ja' },
+  { plugin: 'router', android: 'ja', mac: 'ja', windows: 'nein' }
+]
+
+$einkaufsliste = ['Apfel', 'Banane', 'Kaffee']
+:::
+
+# Willkommen bei :{$projektName}:
+
+Das hier ist ein dynamischer Text. Peter :{$nachname}: wohnt in :{$wohnort}:.
+
+### Plugin-Vergleich
+:::dmd createTable($tableContent) :::
+
+### Einkaufsliste
+:::dmd createList($einkaufsliste) :::
