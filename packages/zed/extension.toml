@@ -1,0 +1,11 @@
+id = "dmd"
+name = "dmd"
+version = "0.0.1"
+schema_version = 1
+authors = ["Pulgasari <hi@pulgasari.dev>"]
+description = "DMD Language Support"
+repository = "https://github.com/dmd/packages/zed/"
+
+[grammars.env]
+repository = "https://github.com/dmd/packages/zed/"
+commit = ""
