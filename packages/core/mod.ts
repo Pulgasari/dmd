@@ -1,11 +1,12 @@
 // @dmd/core/mod.ts
 
-// Standard-Standardfunktionen für Markdown-Generierung
+import { marked } from "marked";
+
 const builtInFunctions: Record<string, Function> = {
   createTable: (data: Array<Record<string, unknown>>) => {
     if (!data || data.length === 0) return '';
-    const headers    = Object.keys(data[0]);
-    const headerRow  = `| ${headers.join(' | ')} |`;
+    const headers = Object.keys(data[0]);
+    const headerRow = `| ${headers.join(' | ')} |`;
     const dividerRow = `| ${headers.map(() => '---').join(' | ')} |`;
     const rows = data.map(row => `| ${headers.map(h => String(row[h] ?? '')).join(' | ')} |`).join('\n');
     return `\n${headerRow}\n${dividerRow}\n${rows}\n`;
@@ -16,19 +17,19 @@ const builtInFunctions: Record<string, Function> = {
   }
 };
 
-export function compileDMD (input: string): string {
+export interface CompileOptions {
+  toHtml?: boolean;
+}
+
+export function compileDMD(input: string, options: CompileOptions = {}): string {
   let markdown = input;
-  
-  // Wir erstellen einen Execution-Context für unsere Variablen
-  // Erbt die Standardfunktionen
   const context: Record<string, any> = { ...builtInFunctions };
 
   // 1. SCHRITT: Definitions-Blöcke parsen (:::dmd ... ::: über mehrere Zeilen)
   const blockRegex = /:::dmd\s*\n([\s\S]*?)\n:::/g;
   markdown = markdown.replace(blockRegex, (_, logicCode) => {
-    // Variablen-Zuweisungen im Kontext ausführen
     executeInContext(logicCode, context);
-    return ''; // Löscht den Definitionsblock aus dem finalen MD
+    return '';
   });
 
   // 2. SCHRITT: Inline-Funktionsblöcke parsen (:::dmd funktion() ::: auf einer Zeile)
@@ -43,19 +44,23 @@ export function compileDMD (input: string): string {
     return String(evaluateExpression(expression, context));
   });
 
-  return markdown.trim();
+  const finalMarkdown = markdown.trim();
+
+  // Optionales HTML-Rendering via marked
+  if (options.toHtml) {
+    return marked.parse(finalMarkdown) as string;
+  }
+
+  return finalMarkdown;
 }
 
-// Hilfsfunktion: Führt Code aus und füllt den Kontext (für Variablen)
-function executeInContext (code: string, context: Record<string, any>) {
-  // Wir wandeln $variable im Code in context.variable um
+function executeInContext(code: string, context: Record<string, any>) {
   const sanitizedCode = code.replace(/\$(\w+)/g, 'this.$1');
   const fn = new Function(sanitizedCode);
   fn.call(context);
 }
 
-// Hilfsfunktion: Evaluiert einen einzelnen Ausdruck und gibt das Ergebnis zurück
-function evaluateExpression (expression: string, context: Record<string, any>): unknown {
+function evaluateExpression(expression: string, context: Record<string, any>): unknown {
   const sanitizedExpression = expression.replace(/\$(\w+)/g, 'this.$1');
   const fn = new Function(`return ${sanitizedExpression};`);
   try {
