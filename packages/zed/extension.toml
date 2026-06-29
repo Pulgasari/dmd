@@ -7,5 +7,5 @@ description = "DMD Language Support"
 repository = "https://github.com/dmd/packages/zed/"
 
 [grammars.env]
-repository = "https://github.com/dmd/packages/zed/"
+repository = "https://github.com/tree-sitter-grammars/tree-sitter-markdown/tree/split_parser/tree-sitter-markdown/"
 commit = ""
